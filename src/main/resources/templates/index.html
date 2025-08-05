@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EventSource Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            color: #0066cc;
+        }
+
+        #messages {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+<h1>📡 Mensagens em Tempo Real</h1>
+<div id="messages"></div>
+
+<script>
+    const eventSource = new EventSource("http://localhost:10001/subscribe/1");
+
+    eventSource.onmessage = function (event) {
+        const msgContainer = document.getElementById("messages");
+
+        try {
+            const dataObj = JSON.parse(event.data);
+            const newMessage = document.createElement("div");
+            newMessage.className = "message";
+            newMessage.innerHTML = `
+  <strong>UUID:</strong> ${dataObj.uuid}<br/>
+  <strong>Mensagem:</strong> ${dataObj.message}
+`;
+            msgContainer.appendChild(newMessage);
+        } catch (err) {
+            console.error("Erro ao fazer parsing da mensagem:", err);
+        }
+    };
+
+    eventSource.onerror = function (err) {
+        console.error("Erro na conexão com EventSource:", err);
+        eventSource.close();
+    };
+
+</script>
+</body>
+
+</html>
